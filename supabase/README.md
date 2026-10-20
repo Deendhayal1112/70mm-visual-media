@@ -81,8 +81,13 @@ supabase start
    ```
    This will execute `supabase/migrations/20250101000000_initial_schema.sql`, provisioning all tables, indexes, triggers, and Row-Level Security policies.
 
+### Administrator Bootstrap & Initial Provisioning
+After executing `npx supabase db push`:
+1. Follow [supabase/BOOTSTRAP_ADMIN.md](./BOOTSTRAP_ADMIN.md) to create your administrator user in Supabase Auth.
+2. Execute [supabase/bootstrap_admin.sql](./bootstrap_admin.sql) in the Supabase SQL Editor to promote the user to `role = 'admin'`.
+
 ### Generating TypeScript Database Types
-Once your remote schema is applied, generate automated type definitions:
+Once your remote schema is applied:
 ```bash
 npx supabase gen types typescript --project-id your-project-ref > src/types/database.ts
 ```
@@ -105,17 +110,18 @@ npm run dev
 
 To verify that environment variables are correctly recognized without revealing credentials in logs:
 
-1. In development mode, the Supabase middleware automatically runs on incoming requests.
+1. In development mode, the Next.js Request Proxy (`src/proxy.ts`) automatically validates incoming sessions.
 2. If credentials are missing or empty, `isSupabaseConfigured()` returns `false`, allowing the website to continue rendering with local mock data without crashing.
-3. When credentials are set, `isSupabaseConfigured()` returns `true`, and session refreshing activates automatically.
+3. When credentials are set in `.env.local`, `isSupabaseConfigured()` returns `true`, and session refreshing activates automatically.
 
 ---
 
-## 7. Roadmap: Remaining Backend & CMS Steps
+## 7. Roadmap: Supabase & CMS Milestones
 
-| Phase / Step | Status | Planned Scope |
+| Phase / Step | Status | Scope |
 |---|---|---|
-| **Phase 3, Step 1** | **Completed** | Dependencies installed, client/server/middleware architecture, schema migration, storage plan, and documentation. |
-| **Phase 3, Step 2** | *Upcoming* | Real Supabase Auth integration for `/admin/login`, protected server-side route guards, and session redirect flow. |
-| **Phase 3, Step 3** | *Upcoming* | CMS data fetching & mutation actions (portfolio CRUD, services editor, equipment inventory, enquiry pipeline). |
-| **Phase 3, Step 4** | *Upcoming* | Supabase Storage integration (drag-and-drop media upload, thumbnail generation, aspect ratio validation). |
+| **Phase 3, Step 1** | **Completed** | Dependencies installed, client/server/proxy architecture, initial schema migration, storage plan, and documentation. |
+| **Phase 3, Step 2** | **Completed** | Full schema & RLS audit, anti-escalation triggers, role helper functions, storage security policies, admin bootstrap guide & script. |
+| **Phase 3, Step 3** | *Upcoming* | Real Supabase Auth integration for `/admin/login`, protected server-side route guards, and session redirect flow. |
+| **Phase 3, Step 4** | *Upcoming* | CMS data fetching & mutation actions (portfolio CRUD, services editor, equipment inventory, enquiry pipeline). |
+| **Phase 3, Step 5** | *Upcoming* | Supabase Storage integration (drag-and-drop media upload, thumbnail generation, aspect ratio validation). |

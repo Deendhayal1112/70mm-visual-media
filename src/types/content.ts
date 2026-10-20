@@ -27,6 +27,7 @@ export interface EquipmentItem {
   description?: string;
   badge?: string;
   isFlagship?: boolean;
+  isActive?: boolean;
 }
 
 export interface ProcessStep {

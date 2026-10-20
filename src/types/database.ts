@@ -178,6 +178,7 @@ export interface Database {
           badge: string | null;
           image_url: string | null;
           is_flagship: boolean;
+          is_active: boolean;
           order_index: number;
           created_at: string;
           updated_at: string;
@@ -197,6 +198,7 @@ export interface Database {
           badge?: string | null;
           image_url?: string | null;
           is_flagship?: boolean;
+          is_active?: boolean;
           order_index?: number;
           created_at?: string;
           updated_at?: string;
@@ -216,6 +218,7 @@ export interface Database {
           badge?: string | null;
           image_url?: string | null;
           is_flagship?: boolean;
+          is_active?: boolean;
           order_index?: number;
           created_at?: string;
           updated_at?: string;
@@ -302,7 +305,14 @@ export interface Database {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      is_admin: {
+        Args: Record<PropertyKey, never>;
+        Returns: boolean;
+      };
+      is_editor_or_admin: {
+        Args: Record<PropertyKey, never>;
+        Returns: boolean;
+      };
     };
     Enums: {
       [_ in never]: never;

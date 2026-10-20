@@ -21,51 +21,69 @@ This document defines the storage strategy for visual media, film stills, camera
 All storage buckets in Supabase use the `storage.objects` table. The following policies must be applied when provisioning buckets:
 
 ### A. Public Read Policies
-Public website visitors must be able to view published media assets without requiring authentication tokens:
+Public website visitors can view image and video assets in public media buckets, but CANNOT access the private `documents` bucket:
 
 ```sql
--- Allow public access to view image assets in public media buckets
+-- Allow public access to view media assets in public buckets
 CREATE POLICY "Public Read Access for Public Buckets"
 ON storage.objects FOR SELECT
 TO public
 USING (bucket_id IN ('portfolio', 'bts', 'equipment', 'hero'));
+
+-- Allow only administrators to read private client documents
+CREATE POLICY "Admin Read Documents"
+ON storage.objects FOR SELECT
+TO authenticated
+USING (bucket_id = 'documents' AND public.is_admin());
 ```
 
-### B. Authenticated Administrator Upload & Deletion Policies
-Only authenticated administrators (verified via the `profiles` table) can upload, update, or remove assets:
+### B. Authenticated Staff Upload & Deletion Policies
+Authorized staff (admins and editors) can upload media assets, while only administrators can manage sensitive documents:
 
 ```sql
--- Allow authenticated administrators to insert/upload media
-CREATE POLICY "Admin Upload Access"
+-- Allow staff (admins and editors) to upload to public media buckets
+CREATE POLICY "Staff Media Upload Access"
 ON storage.objects FOR INSERT
 TO authenticated
 WITH CHECK (
-  EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
-  )
+  bucket_id IN ('portfolio', 'bts', 'equipment', 'hero')
+  AND public.is_editor_or_admin()
 );
 
--- Allow authenticated administrators to update media
-CREATE POLICY "Admin Update Access"
+-- Allow administrators to upload to private documents bucket
+CREATE POLICY "Admin Documents Upload Access"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (
+  bucket_id = 'documents'
+  AND public.is_admin()
+);
+
+-- Allow staff to update media assets
+CREATE POLICY "Staff Media Update Access"
 ON storage.objects FOR UPDATE
 TO authenticated
 USING (
-  EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
-  )
+  bucket_id IN ('portfolio', 'bts', 'equipment', 'hero')
+  AND public.is_editor_or_admin()
 );
 
--- Allow authenticated administrators to delete media
-CREATE POLICY "Admin Delete Access"
+-- Allow staff to delete media assets
+CREATE POLICY "Staff Media Delete Access"
 ON storage.objects FOR DELETE
 TO authenticated
 USING (
-  EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
-  )
+  bucket_id IN ('portfolio', 'bts', 'equipment', 'hero')
+  AND public.is_editor_or_admin()
+);
+
+-- Allow only administrators to delete private documents
+CREATE POLICY "Admin Documents Delete Access"
+ON storage.objects FOR DELETE
+TO authenticated
+USING (
+  bucket_id = 'documents'
+  AND public.is_admin()
 );
 ```
 
